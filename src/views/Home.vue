@@ -176,7 +176,7 @@ export default {
 
     async function getData (code) {
       try {
-        const result = await jsonp(`http://fundgz.1234567.com.cn/js/${code}.js`)
+        const result = await jsonp(`https://fundgz.1234567.com.cn/js/${code}.js`)
         console.log(result)
       } catch (e) {
         // console.log(e)
