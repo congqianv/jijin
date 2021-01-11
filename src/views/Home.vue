@@ -1,6 +1,10 @@
 <template>
   <div class="home">
-    <div class="left" :class="showLeft ? 'left-mobile' : ''" v-if="isPc || showLeft">
+    <div
+      class="left"
+      :class="showLeft ? 'left-mobile' : ''"
+      v-if="isPc || showLeft"
+    >
       <div
         class="left-item flex-row"
         v-for="(item, index) in myJiJinList"
@@ -39,6 +43,28 @@
         <div class="btn" @click="addList">新增</div>
         <div class="btn btn-default" @click="toSave">保存</div>
       </div>
+      <div
+        class="flex-row"
+        style="margin-top: 10px"
+        v-if="myJiJinList.length === 0 || !isEdit"
+      >
+        <div class="btn" @click="showImport = true">导入</div>
+        <div class="btn btn-default" @click="toExport">导出</div>
+      </div>
+      <div class="tip">
+        本项目依赖本地缓存,更换设备需要重新新增基金,觉得麻烦可以在旧设备点击导出,然后在新设备点击导入
+      </div>
+
+      <div v-if="showImport">
+        <textarea
+          class="import-ipt"
+          v-model="importValue"
+          placeholder="请粘贴复制的数据"
+        ></textarea>
+        <div class="btn btn-default" style="margin: 0" @click="toImport">
+          确定
+        </div>
+      </div>
     </div>
     <div class="content">
       <div class="content-summary content-item flex-row">
@@ -75,7 +101,14 @@
         </div>
       </div>
     </div>
-    <img class="menu" @click="showLeft = !showLeft" v-if="!isPc" src="@/assets/menu.png" />
+    <img
+      class="menu"
+      @click="showLeft = !showLeft"
+      v-if="!isPc"
+      src="@/assets/menu.png"
+    />
+    <input class="copy" />
+    <div class="toast" v-if="toastContent">{{ toastContent }}</div>
   </div>
 </template>
 
@@ -90,6 +123,9 @@ export default {
   setup () {
     let isPc = ref(true)
     let showLeft = ref(false)
+    let showImport = ref(false)
+    let toastContent = ref('')
+    let importValue = ref('')
     let isEdit = ref(true)
     let myJiJinList = ref([])
     let guzhiList = reactive([])
@@ -192,6 +228,23 @@ export default {
       }
     }
 
+    function toExport () {
+      var copyIpt = document.querySelector(".copy");
+      copyIpt.value = JSON.stringify(myJiJinList.value)
+      copyIpt.select(); // 选择对象
+      document.execCommand("Copy");
+      toastContent.value = '导出成功,请更换设备点击导入'
+      setTimeout(() => {
+        toastContent.value = ''
+      }, 3000);
+    }
+
+    function toImport () {
+      myJiJinList.value = JSON.parse(importValue.value)
+      setListLocal()
+      showImport.value = false
+    }
+
     return {
       handleReq,
       myJiJinList,
@@ -207,7 +260,12 @@ export default {
       toSave,
       toEdit,
       isPc,
-      showLeft
+      showLeft,
+      toExport,
+      toImport,
+      toastContent,
+      importValue,
+      showImport
     }
   }
 }
@@ -357,5 +415,39 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+}
+
+.tip {
+  font-size: 12px;
+  color: #333;
+  opacity: 0.7;
+  margin-top: 10px;
+}
+
+.copy {
+  position: fixed;
+  top: -1000vh;
+  // display: none;
+}
+
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  background: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  width: fit-content;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+
+.import-ipt {
+  margin-top: 20px;
+  width: 100%;
+  height: 40px;
+  border: none;
+  outline: none;
 }
 </style>
