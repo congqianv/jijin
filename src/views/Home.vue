@@ -43,7 +43,7 @@
     <div class="content">
       <div class="content-summary content-item flex-row">
         <div class="content-item-block content-item-big">
-          累计持仓: {{ totalPrice }}
+          累计持仓: {{ totalPrice.toFixed(2) }}
         </div>
         <div
           class="content-item-block content-item-big"
@@ -88,25 +88,12 @@ export default {
 
   setup () {
     let isEdit = ref(true)
-    let myJiJinList = ref([
-      // '001410', '005176', '110022', '161725', '003634', '004477', '110011', '163402'
-      // { code: '001410', hold: 18306.33 }, // 信达澳
-      // { code: '005176', hold: 23288.05 }, // 富国医疗
-      // { code: '110022', hold: 17240.99 }, // 易方达消费
-      // { code: '161725', hold: 14094.55 }, // 白酒
-      // { code: '003634', hold: 10712.29 },  // 嘉实农业
-      // { code: '004477', hold: 0 },
-      // { code: '110011', hold: 0 },
-      // { code: '004642', hold: 0 },
-      // { code: '320007', hold: 0 },
-      // { code: '002190', hold: 0 },
-      // { code: '167301', hold: 0 }
-    ])
+    let myJiJinList = ref([])
     let guzhiList = reactive([])
     let fmtGuzhi = computed(() => guzhiList.sort((a, b) => {
       return b.gszzl - a.gszzl
     }))
-    let totalPrice = computed(() => myJiJinList.value.reduce((a, b) => { return a + b.hold }, 0))
+    let totalPrice = computed(() => myJiJinList.value.reduce((a, b) => { return a + +b.hold }, 0))
     let totalCount = computed(() => guzhiList.reduce((a, b) => { return a + +b.got }, 0))
 
     window.jsonpgz = function (item2) {
@@ -125,12 +112,12 @@ export default {
 
     function getListLocal () {
       const listFromLocal = JSON.parse(localStorage.getItem('jijinList'))
-      console.log(listFromLocal)
       myJiJinList.value = listFromLocal || []
       if (!listFromLocal || listFromLocal.length === 0) {
         isEdit.value = true
       } else {
         isEdit.value = false
+        handleReq()
       }
     }
 
@@ -146,6 +133,7 @@ export default {
       }
       localStorage.setItem('jijinList', JSON.stringify(myJiJinList.value))
       isEdit.value = false
+      handleReq()
     }
 
     function addList () {
@@ -188,7 +176,7 @@ export default {
       myJiJinList,
       guzhiList,
       fmtGuzhi,
-      totalPrice: totalPrice.value.toFixed(2),
+      totalPrice,
       totalCount,
       getListLocal,
       setListLocal,
