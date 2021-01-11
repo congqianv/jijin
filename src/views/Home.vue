@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <div class="left">
+    <div class="left" :class="showLeft ? 'left-mobile' : ''" v-if="isPc || showLeft">
       <div
         class="left-item flex-row"
         v-for="(item, index) in myJiJinList"
@@ -58,7 +58,7 @@
         v-for="(item, index) in fmtGuzhi"
         :key="index"
       >
-        <div class="flex-row content-item-mobile">
+        <div class="flex-row" :class="isPc ? '' : 'content-item-mobile'">
           <div class="content-item-block">
             {{ item.name }}
           </div>
@@ -75,6 +75,7 @@
         </div>
       </div>
     </div>
+    <img class="menu" @click="showLeft = !showLeft" src="@/assets/menu.png" />
   </div>
 </template>
 
@@ -87,6 +88,8 @@ export default {
   name: 'Home',
 
   setup () {
+    let isPc = ref(true)
+    let showLeft = ref(false)
     let isEdit = ref(true)
     let myJiJinList = ref([])
     let guzhiList = reactive([])
@@ -107,8 +110,24 @@ export default {
     }
 
     onMounted(() => {
+      isPc.value = isPC()
       getListLocal()
     })
+
+    function isPC () {
+      let userAgentInfo = navigator.userAgent;
+      let Agents = ["Android", "iPhone",
+        "SymbianOS", "Windows Phone",
+        "iPad", "iPod"];
+      let flag = true;
+      for (let v = 0; v < Agents.length; v++) {
+        if (userAgentInfo.indexOf(Agents[v]) > 0) {
+          flag = false;
+          break;
+        }
+      }
+      return flag;
+    }
 
     function getListLocal () {
       const listFromLocal = JSON.parse(localStorage.getItem('jijinList'))
@@ -133,6 +152,7 @@ export default {
       }
       localStorage.setItem('jijinList', JSON.stringify(myJiJinList.value))
       isEdit.value = false
+      showLeft.value = false
       handleReq()
     }
 
@@ -184,7 +204,9 @@ export default {
       toDel,
       isEdit,
       toSave,
-      toEdit
+      toEdit,
+      isPc,
+      showLeft
     }
   }
 }
@@ -218,6 +240,13 @@ export default {
 .left {
   flex: 3;
   box-shadow: 10px 0 30px #c7cadb;
+
+  &-mobile {
+    position: fixed;
+    background: #fff;
+    z-index: 10;
+    width: 100vw;
+  }
 
   &-item {
     width: 100%;
@@ -315,14 +344,17 @@ export default {
   font-weight: bold;
 }
 
-@media screen and (max-width: 750px) {
-  .left {
-    display: none;
-  }
-  .content-item-mobile {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
+.menu {
+  position: fixed;
+  bottom: 40px;
+  left: 30px;
+  width: 32px;
+  z-index: 20;
+}
+
+.content-item-mobile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 </style>
