@@ -75,7 +75,7 @@
         </div>
       </div>
     </div>
-    <img class="menu" @click="showLeft = !showLeft" src="@/assets/menu.png" />
+    <img class="menu" @click="showLeft = !showLeft" v-if="!isPc" src="@/assets/menu.png" />
   </div>
 </template>
 
@@ -176,6 +176,7 @@ export default {
       myJiJinList.value.forEach(item => {
         getData(item.code)
       })
+      showLeft.value = false
     }
 
     function toEdit () {
