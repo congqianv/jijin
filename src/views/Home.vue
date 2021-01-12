@@ -77,6 +77,11 @@
         >
           预估收益: {{ totalCount.toFixed(2) }}
         </div>
+        <div class="flex-row content-item-block content-item-big" :class="totalCount >= 0 ? 'color-red' : 'color-green'">
+          <img class="arrow up" src="@/assets/up.png" v-if="totalCount >= 0" />
+          <img class="arrow down" src="@/assets/down.png" v-else />
+          {{ (totalCount / totalPrice).toFixed(2) }}
+        </div>
       </div>
       <div
         class="content-item"
@@ -449,5 +454,17 @@ export default {
   height: 40px;
   border: none;
   outline: none;
+}
+
+.arrow {
+  width: 43px;
+  height: 24px;
+  transform: scale(0.6);
+  margin-right: -8px;
+  margin-bottom: 3px;
+}
+
+.down {
+  transform: scale(0.6) rotate(180deg);
 }
 </style>
